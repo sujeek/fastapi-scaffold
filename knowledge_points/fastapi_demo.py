@@ -16,9 +16,9 @@ class Person(BaseModel):
     name: str
 
 
-demo_app = APIRouter()
+router = APIRouter()
 
 
-@demo_app.post('/v1')
+@router.post('/v1')
 def get_person(version: str, person: Person):
     return {"version": version, "person": person.name}

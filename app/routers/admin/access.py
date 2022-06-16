@@ -1,22 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-@Time ： 2022/6/1 15:17
+@Time ： 2022/6/1 23:21
 @Auth ： yongjie.su
-@File ：health.py
+@File ：access.py
 @IDE ：PyCharm
 @Motto：Design Review Coding Test
 
 """
+
 from fastapi import APIRouter
 
 router = APIRouter()
 
 
-@router.get('/')
-async def health():
-    return 'ok'
 
-
-@router.post('/')
-async def health():
-    return 'ok'

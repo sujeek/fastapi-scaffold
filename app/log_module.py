@@ -21,12 +21,15 @@ class Logger:
         format = "{time:YYYY-MM-DD HH:mm:ss,SSS} [{thread}] {level} {file} {line} - {message}"
         # 普通logger
         info_logger.add(home_path + '/logs/info.log.{time:YYYY-MM-DD HH}.log', format=format,
-                                      level='INFO', rotation='1 h')
+                        level='INFO', rotation='1 h')
+        # info_logger.remove()
         error_logger.add(home_path + '/logs/error.log.{time:YYYY-MM-DD HH}.log', format=format,
-                                       level='ERROR', rotation='1 h')
+                         level='ERROR', rotation='1 h')
+        # error_logger.remove()
         # access log 使用和tornado相同的logger name,主动指定log的文件地址
         access_logger.add(home_path + '/logs/access.log.{time:YYYY-MM-DD HH}.log', format=format,
-                                        level='INFO', rotation='1 h')
+                          level='INFO', rotation='1 h')
+        # access_logger.remove()
 
     def debug(self, msg):
         info_logger.debug(msg)

@@ -7,40 +7,58 @@
 @Motto：Design Review Coding Test
 
 """
+import os
+
 from fastapi import FastAPI
-from knowledge_points.fastapi_demo import demo_app
-from app.routers.health import health_app
+from starlette.staticfiles import StaticFiles
+
+from knowledge_points import fastapi_demo
+from app.routers import health
+from app.routers.admin import user, role, access, org
+from app.core import event
+from app.utils import util
 
 
 class Application:
     app = FastAPI(
         title='Service-Framework API Docs',
         version='1.0.0',
-        docs_url='/docs',
-        redoc_url='/redocs',
+        docs_url=None,
+        redoc_url=None,
     )
 
     def __init__(self):
+        self.home_path = util.get_home_dir()
+
+        self._init_event()
         # 注册业务router
         self._init_router()
 
-        # # 注册trace_id
-        # self._init_trace_id()
         #
-        # # 请求参数校验
-        # self._init_middleware()
+        self._init_middleware()
 
+        #
+        self._init_mount()
+
+    def _init_event(self):
+        self.app.add_event_handler("startup", event.startup(self.app))
+        self.app.add_event_handler("shutdown", event.shutdown(self.app))
+
+    # 注册 router
     def _init_router(self):
-        self.app.include_router(demo_app, prefix='/demo_app', tags=['测试Demo'])
-        self.app.include_router(health_app, prefix='/health', tags=['健康检查'])
+        self.app.include_router(fastapi_demo.router, prefix='/test', tags=['测试Demo'])
+        self.app.include_router(health.router, prefix='/health', tags=['健康检查'])
+        self.app.include_router(user.router, prefix='/admin', tags=['用户管理'])
+        self.app.include_router(role.router, prefix='/role', tags=['角色管理'])
+        self.app.include_router(access.router, prefix='/access', tags=['权限管理'])
+        self.app.include_router(org.router, prefix='/org', tags=['组织单位'])
 
-    # def _init_trace_id(self):
-    #     from app.middleware.trace_id_middlerware import TraceIdMiddleware
-    #     self.app.add_middleware(TraceIdMiddleware)
-    #
-    # def _init_middleware(self):
-    #     from app.middleware.auth_middleware import AuthMiddleware
-    #     self.app.add_middleware(AuthMiddleware)
+    def _init_middleware(self):
+        pass
+
+    # 初始化挂载
+    def _init_mount(self):
+        self.app.mount('/static', StaticFiles(directory=os.path.join(self.home_path, 'static')), name='static')
 
 
 def create_app():

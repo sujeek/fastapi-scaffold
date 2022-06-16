@@ -8,6 +8,16 @@
 
 """
 # server info
-config = {
-    'port': 8088
+dev = {
+    'port': 8088,
+
+    'mysql': {
+        "hostname": "127.0.0.1",
+        "username": "root",
+        "password": "123456",
+        "database": "scaffold",
+        "port": "3306"
+    }
 }
+
+config = dev
