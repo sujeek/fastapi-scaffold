@@ -13,7 +13,7 @@ from fastapi import FastAPI
 from starlette.staticfiles import StaticFiles
 
 from knowledge_points import fastapi_demo
-from app.routers import health
+from app.routers.monitor import health
 from app.routers.admin import user, role, access, org
 from app.core import event
 from app.utils import util
@@ -47,8 +47,8 @@ class Application:
     # 注册 router
     def _init_router(self):
         self.app.include_router(fastapi_demo.router, prefix='/test', tags=['测试Demo'])
-        self.app.include_router(health.router, prefix='/health', tags=['健康检查'])
-        self.app.include_router(user.router, prefix='/admin', tags=['用户管理'])
+        self.app.include_router(health.router, prefix='/monitor', tags=['健康检查'])
+        self.app.include_router(user.router, prefix='/user', tags=['用户管理'])
         self.app.include_router(role.router, prefix='/role', tags=['角色管理'])
         self.app.include_router(access.router, prefix='/access', tags=['权限管理'])
         self.app.include_router(org.router, prefix='/org', tags=['组织单位'])

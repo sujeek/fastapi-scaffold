@@ -12,11 +12,11 @@ from fastapi import APIRouter
 router = APIRouter()
 
 
-@router.get('/')
+@router.get('/health')
 async def health():
     return 'ok'
 
 
-@router.post('/')
+@router.post('/health')
 async def health():
     return 'ok'

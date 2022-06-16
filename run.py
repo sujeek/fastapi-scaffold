@@ -11,7 +11,6 @@ import os
 import uvicorn
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 
-
 from app.config import config
 from app.utils import util
 from app.log_module import log
@@ -39,6 +38,7 @@ async def custom_swagger_ui_html():
         swagger_css_url="/static/swagger-ui.css",
     )
 
+
 @app.get("/redocs", include_in_schema=False)
 async def redoc_html():
     return get_redoc_html(
@@ -46,6 +46,7 @@ async def redoc_html():
         title=app.title,
         redoc_js_url="/static/redoc.standalone.js",
     )
+
 
 if __name__ == '__main__':
     uvicorn.run(

@@ -20,7 +20,7 @@ from app.utils.timer_helper import timer
 @Singleton
 class SqlAlchemyModule:
     def __init__(self, **kwargs):
-        _host = kwargs.get('hostname', None)
+        _host = kwargs.get('hostname', 'localhost')
         _user = kwargs.get('username')
         _password = kwargs.get('password')
         _database = kwargs.get('database')

@@ -67,9 +67,6 @@ class SqlAlchemyDao:
             self.session.execute(sqlalchemy.select(clz).where(clz.id.in_(ids))).scalars().all()
         )
 
-    def update(self, obj) -> T:
-        self.session
-
     def commit(self):
         try:
             self.session.commit()

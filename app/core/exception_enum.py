@@ -13,6 +13,7 @@ from enum import Enum
 class ErrorEnum(Enum):
     Success = 0, 'success'
     Faild = -1, 'faild'
+    UserIdIsNull = 10, '用户user_id为空！'
 
     def __init__(self, code, message):
         self.code = code

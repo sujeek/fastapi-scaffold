@@ -11,6 +11,7 @@ from pydantic import BaseModel, validator, Field, StrictInt, StrictStr
 
 
 class User(BaseModel):
+    user_id: StrictStr
     name: StrictStr
     pwd: StrictStr
     phone: StrictStr

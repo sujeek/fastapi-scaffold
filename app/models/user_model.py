@@ -32,6 +32,7 @@ class UserAdd(Model, Base):
     __tablename__ = 't_user'
 
     id = Column(Integer, primary_key=True)
+    user_id = Column(String(20))
     name = Column(String(20))
     pwd = Column(String(32))
     phone = Column(String(20))
@@ -45,3 +46,32 @@ class UserAdd(Model, Base):
     is_delete = Column(Integer)
     create_time = Column(DateTime)
     update_time = Column(DateTime)
+
+
+class UserUpdate(Model, Base):
+    __tablename__ = 't_user'
+    __table_args__ = {'extend_existing': True}
+
+    user_id = Column(String(20))
+    name = Column(String(20))
+    pwd = Column(String(32))
+    phone = Column(String(20))
+    Ids = Column(String(20))
+    age = Column(Integer)
+    sex = Column(String(20))
+    org_id = Column(Integer)
+    org_name = Column(String(20))
+    email = Column(String(20))
+    remark = Column(String(20))
+    is_delete = Column(Integer)
+    create_time = Column(DateTime)
+    update_time = Column(DateTime)
+
+
+class UserDelete(Model, Base):
+    __tablename__ = 't_user'
+    __table_args__ = {'extend_existing': True}
+
+    user_id = Column(String(20))
+    is_delete = Column(Integer)
+

@@ -9,26 +9,34 @@
 """
 import datetime
 import traceback
-from fastapi import APIRouter
+from typing import List
+from fastapi import APIRouter, Query
 from sqlalchemy import select
+from tortoise.queryset import F
 
-from app.db.sqlalchemy_dao import SqlAlchemyDao
+from app.db.dao.sqlalchemy_dao import SqlAlchemyDao
+from app.db.dao.mysql_dao import MysqlDao
 from app.entities.admin.user import User
-from app.models.user_model import UserAdd
+from app.models.user_model import UserAdd, UserUpdate
 from app.core.response import ApiResponse
 from app.core.exception_enum import ErrorEnum
 from app.log_module import log
+from app.utils.util import get_md5_value
 
 router = APIRouter()
-session = SqlAlchemyDao()
+sqlalchemy_dao = SqlAlchemyDao()
+mysql_dao = MysqlDao()
 
 
-@router.post('/add')
+@router.post('/insert_or_update')
 async def add_user(user: User):
     now = datetime.datetime.now()
+    user_id = user.user_id
+    pwd = get_md5_value(user.pwd)
     user_add = UserAdd(
+        user_id=user_id,
         name=user.name,
-        pwd=user.pwd,
+        pwd=pwd,
         phone=user.phone,
         Ids=user.Ids,
         age=user.age,
@@ -41,34 +49,50 @@ async def add_user(user: User):
         create_time=now,
         update_time=now
     )
-    # 严谨的做法先判断是否存在，然后再插入
     try:
-        session.insert(user_add)
+        if user_id is None:
+            log.error(f'user_id is none, please add user_id.')
+            return ApiResponse(ErrorEnum.UserIdIsNull.code, ErrorEnum.UserIdIsNull.message, {})
+        res = sqlalchemy_dao.session.execute(select(UserAdd).filter_by(user_id=user_id)).first()
+        if res is None:
+            # 不存在则直接插入
+            log.info(f'user_id is not exists, exec add.')
+            sqlalchemy_dao.session.add(user_add)
+        else:
+            # 若存在，则更新
+            log.info(f'user_id is exists, exec update.')
+            data = user_add.to_dict()
+            data['id'] = res[0].id
+            sqlalchemy_dao.session.query(UserUpdate).filter(UserUpdate.user_id == user_id).update(data)
         return ApiResponse(ErrorEnum.Success.code, ErrorEnum.Success.message, user.json())
     except Exception as e:
         log.error(e)
         traceback.print_exc()
         return ApiResponse(ErrorEnum.Faild.code, ErrorEnum.Faild.message, {})
+    finally:
+        sqlalchemy_dao.session.commit()
+        sqlalchemy_dao.session.close()
 
 
 @router.post('/find_by_id')
 async def query(id: int):
     try:
-        user = session.get_by_id(UserAdd, id)
+        user = sqlalchemy_dao.session.get(UserAdd, id)
         return ApiResponse(ErrorEnum.Success.code, ErrorEnum.Success.message, user)
     except Exception as e:
         log.error(e)
         traceback.print_exc()
         return ApiResponse(ErrorEnum.Faild.code, ErrorEnum.Faild.message, {})
     finally:
-        session.close()
+        sqlalchemy_dao.session.commit()
+        sqlalchemy_dao.session.close()
 
 
-@router.post('/query_by_id')
-async def query(num: int):
-    # 严谨的做法先判断是否存在，然后再插入
+@router.post('/query_by_user_id')
+async def query(user_id: str):
     try:
-        user = session.session.execute(select(UserAdd).filter_by(id=num)).first()
+        query = {"user_id": user_id, "is_delete": 0}
+        user = sqlalchemy_dao.session.execute(select(UserAdd).filter_by(**query)).first()
         data = user[0].to_json() if user is not None else {}
         return ApiResponse(ErrorEnum.Success.code, ErrorEnum.Success.message, data)
     except Exception as e:
@@ -76,40 +100,46 @@ async def query(num: int):
         traceback.print_exc()
         return ApiResponse(ErrorEnum.Faild.code, ErrorEnum.Faild.message, {})
     finally:
-        session.close()
+        sqlalchemy_dao.session.commit()
+        sqlalchemy_dao.session.close()
 
 
-@router.post('/query')
-async def query(num: int):
-    # 严谨的做法先判断是否存在，然后再插入
+@router.post('/query_by_page')
+async def query(
+        page_size: int = 10,
+        current: int = 1,
+        name: str = Query(None),
+        org_name: str = Query(None)):
+    # 查询条件, 目前缺失时间范围的查询
+    query = {'is_delete': 0}
+    if name:
+        query['name'] = name
+    if org_name:
+        query['org_name'] = org_name
+    log.info(f'query params is: {query}')
     try:
-        user = session.session.execute(select(UserAdd).filter_by(id=num)).first()
-        data = user[0].to_json() if user is not None else {}
+        offset = page_size * (current - 1)
+        users = sqlalchemy_dao.session.execute(
+            select(UserAdd).filter_by(**query).offset(offset).limit(page_size)).all()
+        data = [user[0].to_json() for user in users]
         return ApiResponse(ErrorEnum.Success.code, ErrorEnum.Success.message, data)
     except Exception as e:
         log.error(e)
         traceback.print_exc()
         return ApiResponse(ErrorEnum.Faild.code, ErrorEnum.Faild.message, {})
     finally:
-        session.close()
+        sqlalchemy_dao.close()
 
 
-@router.post('/update')
-async def update(name: str):
+@router.post('/delete_by_user_id')
+async def delete(user_id: str):
     try:
-        user = session.session.execute(update(UserAdd).where(id=num)).first()
-        data = user[0].to_json() if user is not None else {}
-        return ApiResponse(ErrorEnum.Success.code, ErrorEnum.Success.message, data)
+        sqlalchemy_dao.session.query(UserUpdate).filter(UserUpdate.user_id == user_id).update({"is_delete": 1})
+        return ApiResponse(ErrorEnum.Success.code, ErrorEnum.Success.message, user_id)
     except Exception as e:
         log.error(e)
         traceback.print_exc()
         return ApiResponse(ErrorEnum.Faild.code, ErrorEnum.Faild.message, {})
     finally:
-        session.close()
-    return 1
-
-
-@router.post('/delete')
-async def delete(name: str):
-    print(name)
-    return 1
+        sqlalchemy_dao.session.commit()
+        sqlalchemy_dao.session.close()
