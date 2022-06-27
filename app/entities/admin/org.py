@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-@Time ： 2022/6/8 20:15
+@Time ： 2022/6/17 10:56
 @Auth ： yongjie.su
-@File ：user.py
+@File ：org.py
 @IDE ：PyCharm
 @Motto：Design Review Coding Test
 
@@ -11,15 +11,8 @@ from pydantic import BaseModel, StrictInt, StrictStr
 
 
 class User(BaseModel):
-    user_id: StrictStr
-    name: StrictStr
-    pwd: StrictStr
-    phone: StrictStr
-    Ids: StrictStr
-    age: StrictInt = 18
-    sex: StrictStr
-    org_id: StrictInt
+    org_code: StrictStr
     org_name: StrictStr
-    email: StrictStr
+    parent_id: StrictInt
     is_delete: StrictInt = 0
     remark: StrictStr

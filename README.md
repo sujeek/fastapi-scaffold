@@ -22,7 +22,8 @@ run.py是启动入口
 1.  swagger如何本地打开是空白，是因为swagger的js、css文件因为网路问题无法打开，可以本地配置，本地配置参考：
     修改：https://blog.csdn.net/u014651560/article/details/116526653
     swagger下载：https://www.anxz.com/down/135911.html
-2.  xxxx
+2.  SQL的ORM，sqlalchemy 或者 tortoise-orm。
+    https://tortoise-orm.readthedocs.io/en/latest/getting_started.html
 3.  xxxx
 
 #### 参与贡献

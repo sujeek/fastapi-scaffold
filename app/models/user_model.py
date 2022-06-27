@@ -7,7 +7,6 @@
 @Motto：Design Review Coding Test
 
 """
-from pydantic import Field
 from sqlalchemy import Column, String, Integer, DateTime, text
 from sqlalchemy.ext.declarative import declarative_base
 

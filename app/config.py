@@ -17,7 +17,12 @@ dev = {
         "password": "123456",
         "database": "scaffold",
         "port": "3306"
+    },
+    'redis': {
+        'host': '127.0.0.1',
+        'port': 6379
     }
+
 }
 
 config = dev
